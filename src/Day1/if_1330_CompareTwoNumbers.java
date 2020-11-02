@@ -2,7 +2,7 @@ package Day1;
 
 import java.util.Scanner;
 
-public class if_1330 {
+public class if_1330_CompareTwoNumbers {
     public static void main(String[] args) {
 
         // Taking inputs
