@@ -1,4 +1,4 @@
-package Day3;
+package Day3.Indian;
 
 import java.util.Scanner;
 
