@@ -147,7 +147,7 @@ public class Mission_3_Game {
                 round.newRound();
             }
             if (player.getMoney() <= 0) break;
-            if (round.stage == 2) {
+            if (round.stage == 8) {
                 System.out.println("You've defeated all the enemies! Your total: " + player.getMoney());
                 System.out.println("Congrats!");
                 break;
