@@ -11,8 +11,11 @@ package Day6;
 //        게임 오버시 소지금과 진행 턴을 표시해 준다.
 //        (옵션) 게임 오버시 이름을 입력받고 랭킹을 출력해 준다. 랭킹은 소지금이 많을 수록, 턴이 작을수록 높아진다.
 
-import java.util.Random;
-import java.util.Scanner;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 
 class Player {
     String name = "";
@@ -23,18 +26,22 @@ class Player {
 
     Scanner input = new Scanner(System.in);
 
-    public int getMoney() {
-        return money;
-    }
-
-    public Player() {
+    public void getName() {
         System.out.println("Welcome to Odd or Even Game.");
         System.out.println("Please type in your name.");
-        this.name = input.nextLine();
+        String getLine = input.nextLine();
+        if (getLine.length() > 10) {
+            System.out.println("Keep it short!\n");
+            getName();
+        } else { this.name = getLine; }
     }
 
     public void changeMoney(int money) {
         this.money += money;
+    }
+
+    public int getMoney() {
+        return money;
     }
 }
 
@@ -44,7 +51,7 @@ class Enemy {
     int numberPicked;
 
     public int pickANumber() {
-        return (rand.nextInt(20));
+        return (rand.nextInt(21) + 1);
     }
 
     public int getMoney() {
@@ -60,20 +67,20 @@ class Round {
     Scanner input = new Scanner(System.in);
     Player player;
     Enemy enemy;
-    String inp;
+    int turn = 0;
     int stage = 0;
 
     public void startRound(Player player, Enemy enemy) {
         this.player = player;
         this.enemy = enemy;
         while (true) {
+            System.out.println("Turn #" + ++turn);
             System.out.println(player.name + "'s Money: " + player.getMoney());
             System.out.println("Enemy's Money: " + enemy.getMoney());
 
             enemy.numberPicked = enemy.pickANumber();
             System.out.println(enemy.numberPicked);
             setBetting();
-            System.out.println("Odd or Even? (O for Odd, E for Even) ");
             getChoice();
             compareAndResult();
 
@@ -90,8 +97,10 @@ class Round {
         }
     }
 
+    public int getTurn() {return turn;}
+
     public void getChoice() {
-//        System.out.println("Odd or Even? (O for Odd, E for Even) ");
+        System.out.println("Odd or Even? (O for Odd, E for Even) ");
         player.choiceInLetter = input.nextLine();
         if (player.choiceInLetter.equalsIgnoreCase("o")) {
             player.choice = 1;
@@ -133,11 +142,74 @@ class Round {
     }
 }
 
+class Rank {
+    File file = null;
+    FileWriter fw = null;
+    String formatInfo = "%4s %9s %11s";
+
+    public boolean wannaSave() {
+        Scanner input = new Scanner(System.in);
+        System.out.println("\nWould you like to save your record? (y/n)");
+
+        if (input.nextLine().equalsIgnoreCase("y")) { return true; }
+        if (input.nextLine().equalsIgnoreCase("n")) { return false; }
+        else {
+            System.out.println("Please enter valid answer.");
+            wannaSave();
+        }
+        input.close();
+        return false;
+    }
+
+    public void writeRank(int turn, int money, String name) throws IOException {
+        FileWriter fw = new FileWriter("rank.txt", true);
+        String turnString = Integer.toString(turn), moneyString = Integer.toString(money);
+        // String oneLine = String.format(formatInfo, turnString, moneyString, name);
+        fw.write(String.format(formatInfo, turnString, moneyString, name) + "\n");
+        fw.close();
+    }
+
+    public void firstFiveRank() throws FileNotFoundException {
+        System.out.println(" ...\n########## Rank ##########");
+        System.out.printf((formatInfo) + "%n", "turn", "money", "name");
+        File file = new File("rank.txt");
+        Scanner scan = new Scanner(file);
+
+        for(int i = 0; i < 5; i++) {
+            while (scan.hasNextLine()) {
+                System.out.println(scan.nextLine());
+            }
+        }
+    }
+
+    public void arrangeRank() throws IOException {
+        File file = new File("rank.txt");
+        Scanner scan = new Scanner(file);
+
+        ArrayList<String> arrange = new ArrayList<>();
+        while (scan.hasNextLine()) {
+            arrange.add(scan.nextLine());
+        }
+
+        Collections.sort(arrange);
+
+        FileWriter fw = new FileWriter("rank.txt");
+
+        for (String s : arrange) {
+            fw.write(s + "\n");
+        }
+        fw.close();
+    }
+}
+
 public class Mission_3_Game {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Player player = new Player();
         Enemy enemy = new Enemy();
         Round round = new Round();
+        Rank rank = new Rank();
+
+        player.getName();
 
         while (true) {
             System.out.println("Round #" + (round.stage + 1));
@@ -147,9 +219,12 @@ public class Mission_3_Game {
                 round.newRound();
             }
             if (player.getMoney() <= 0) break;
-            if (round.stage == 8) {
-                System.out.println("You've defeated all the enemies! Your total: " + player.getMoney());
+            if (round.stage == 2) {
+                System.out.println("You've defeated all the enemies! Your total: " + player.getMoney() + " Total turn: " + round.getTurn());
                 System.out.println("Congrats!");
+                if (rank.wannaSave()) { rank.writeRank(round.turn, player.money, player.name); }
+                rank.arrangeRank();
+                rank.firstFiveRank();
                 break;
             }
         }
