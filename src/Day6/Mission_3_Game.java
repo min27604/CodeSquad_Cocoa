@@ -15,7 +15,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
+import java.util.Scanner;
 
 class Player {
     String name = "";
@@ -33,7 +36,9 @@ class Player {
         if (getLine.length() > 10) {
             System.out.println("Keep it short!\n");
             getName();
-        } else { this.name = getLine; }
+        } else {
+            this.name = getLine;
+        }
     }
 
     public void changeMoney(int money) {
@@ -70,11 +75,16 @@ class Round {
     int turn = 0;
     int stage = 0;
 
+    public void setTurn() {
+        turn++;
+    }
+
     public void startRound(Player player, Enemy enemy) {
         this.player = player;
         this.enemy = enemy;
         while (true) {
-            System.out.println("Turn #" + ++turn);
+            setTurn();
+            System.out.println("Turn #" + this.turn);
             System.out.println(player.name + "'s Money: " + player.getMoney());
             System.out.println("Enemy's Money: " + enemy.getMoney());
 
@@ -97,7 +107,9 @@ class Round {
         }
     }
 
-    public int getTurn() {return turn;}
+    public int getTurn() {
+        return turn;
+    }
 
     public void getChoice() {
         System.out.println("Odd or Even? (O for Odd, E for Even) ");
@@ -114,7 +126,15 @@ class Round {
 
     public void setBetting() {
         System.out.println("How much would you like to bet? ");
-        player.betMoney = Integer.parseInt(input.nextLine());
+        String temp = input.nextLine();
+        // player.betMoney = Integer.parseInt(input.nextLine());
+        try {
+            player.betMoney = Integer.parseInt(temp);
+        } catch (Exception e) {
+            System.out.println("Please enter a valid amount.");
+            setBetting();
+        }
+
         if (player.betMoney > Math.min(player.money, enemy.money)) {
             System.out.println("Too much. Should be less than: " + Math.min(player.money, enemy.money));
             setBetting();
@@ -142,18 +162,34 @@ class Round {
     }
 }
 
-class Rank {
-    File file = null;
-    FileWriter fw = null;
+class Rank implements Comparable<Rank> {
     String formatInfo = "%4s %9s %11s";
+    Player player;
+    Round round;
+    String turn, money, name;
+
+    public Rank(Player player, Round round) {
+        this.turn = Integer.toString(round.turn);
+        this.money = Integer.toString(player.money);
+        this.name = player.name;
+    }
+
+    public Rank(String[] str) {
+        this.turn = str[0];
+        this.money = str[1];
+        this.name = str[2];
+    }
 
     public boolean wannaSave() {
         Scanner input = new Scanner(System.in);
         System.out.println("\nWould you like to save your record? (y/n)");
 
-        if (input.nextLine().equalsIgnoreCase("y")) { return true; }
-        if (input.nextLine().equalsIgnoreCase("n")) { return false; }
-        else {
+        if (input.nextLine().equalsIgnoreCase("y")) {
+            return true;
+        }
+        if (input.nextLine().equalsIgnoreCase("n")) {
+            return false;
+        } else {
             System.out.println("Please enter valid answer.");
             wannaSave();
         }
@@ -161,11 +197,13 @@ class Rank {
         return false;
     }
 
-    public void writeRank(int turn, int money, String name) throws IOException {
+    public String toString() {
+        return (this.turn + " " + this.money + " " + this.name);
+    }
+
+    public void writeRank() throws IOException {
         FileWriter fw = new FileWriter("rank.txt", true);
-        String turnString = Integer.toString(turn), moneyString = Integer.toString(money);
-        // String oneLine = String.format(formatInfo, turnString, moneyString, name);
-        fw.write(String.format(formatInfo, turnString, moneyString, name) + "\n");
+        fw.write(this.toString() + "\n");
         fw.close();
     }
 
@@ -175,28 +213,37 @@ class Rank {
         File file = new File("rank.txt");
         Scanner scan = new Scanner(file);
 
-        for(int i = 0; i < 5; i++) {
-            while (scan.hasNextLine()) {
-                System.out.println(scan.nextLine());
-            }
+        for (int i = 0; i < 5; i++) {
+            System.out.println(scan.nextLine());
+
         }
+    }
+
+    public int compareTo(Rank rank) {
+        int thisTurn = Integer.parseInt(this.turn);
+        int rankTurn = Integer.parseInt(rank.turn);
+        return thisTurn - rankTurn;
     }
 
     public void arrangeRank() throws IOException {
         File file = new File("rank.txt");
         Scanner scan = new Scanner(file);
 
-        ArrayList<String> arrange = new ArrayList<>();
+        ArrayList<Rank> arrange = new ArrayList<>();
+
         while (scan.hasNextLine()) {
-            arrange.add(scan.nextLine());
+            String temp;
+            temp = scan.nextLine();
+            Rank rank = new Rank(temp.split(" "));
+            arrange.add(rank);
         }
 
         Collections.sort(arrange);
 
         FileWriter fw = new FileWriter("rank.txt");
 
-        for (String s : arrange) {
-            fw.write(s + "\n");
+        for (Rank rank : arrange) {
+            fw.write(rank.toString() + "\n");
         }
         fw.close();
     }
@@ -205,11 +252,10 @@ class Rank {
 public class Mission_3_Game {
     public static void main(String[] args) throws IOException {
         Player player = new Player();
+        player.getName();
         Enemy enemy = new Enemy();
         Round round = new Round();
-        Rank rank = new Rank();
 
-        player.getName();
 
         while (true) {
             System.out.println("Round #" + (round.stage + 1));
@@ -219,10 +265,13 @@ public class Mission_3_Game {
                 round.newRound();
             }
             if (player.getMoney() <= 0) break;
-            if (round.stage == 2) {
+            if (round.stage == 1) {
                 System.out.println("You've defeated all the enemies! Your total: " + player.getMoney() + " Total turn: " + round.getTurn());
                 System.out.println("Congrats!");
-                if (rank.wannaSave()) { rank.writeRank(round.turn, player.money, player.name); }
+                Rank rank = new Rank(player, round);
+                if (rank.wannaSave()) {
+                    rank.writeRank();
+                }
                 rank.arrangeRank();
                 rank.firstFiveRank();
                 break;
