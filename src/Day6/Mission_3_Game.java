@@ -168,12 +168,14 @@ class Rank implements Comparable<Rank> {
     Round round;
     String turn, money, name;
 
+    // default constructor
     public Rank(Player player, Round round) {
         this.turn = Integer.toString(round.turn);
         this.money = Integer.toString(player.money);
         this.name = player.name;
     }
 
+    // used in arrangeRank()
     public Rank(String[] str) {
         this.turn = str[0];
         this.money = str[1];
@@ -197,16 +199,19 @@ class Rank implements Comparable<Rank> {
         return false;
     }
 
+    // just for convenience
     public String toString() {
         return (this.turn + " " + this.money + " " + this.name);
     }
 
+    // not using String.format when writing file. it distracts program from reading lines.
     public void writeRank() throws IOException {
         FileWriter fw = new FileWriter("rank.txt", true);
         fw.write(this.toString() + "\n");
         fw.close();
     }
 
+    // use String.format when printing the result for look.
     public void firstFiveRank() throws FileNotFoundException {
         System.out.println(" ...\n########## Rank ##########");
         System.out.printf((formatInfo) + "%n", "turn", "money", "name");
@@ -214,36 +219,38 @@ class Rank implements Comparable<Rank> {
         Scanner scan = new Scanner(file);
 
         for (int i = 0; i < 5; i++) {
-            System.out.println(scan.nextLine());
-
+            if (scan.hasNextLine()) {
+                String[] temp = scan.nextLine().split(" ");
+                System.out.printf((formatInfo) + "%n", temp[0], temp[1], temp[2]);
+            }
         }
     }
 
-    public int compareTo(Rank rank) {
+    public int compareTo(Rank rank) { // when it comes to comparing two rank instances
         int thisTurn = Integer.parseInt(this.turn);
         int rankTurn = Integer.parseInt(rank.turn);
-        return thisTurn - rankTurn;
+        return thisTurn - rankTurn; // the standard will be its turn#
     }
 
     public void arrangeRank() throws IOException {
         File file = new File("rank.txt");
         Scanner scan = new Scanner(file);
 
-        ArrayList<Rank> arrange = new ArrayList<>();
+        ArrayList<Rank> arrange = new ArrayList<>(); // Rank ArrayList
 
         while (scan.hasNextLine()) {
             String temp;
-            temp = scan.nextLine();
-            Rank rank = new Rank(temp.split(" "));
+            temp = scan.nextLine(); // store one line in temp
+            Rank rank = new Rank(temp.split(" ")); // split the line to strings, then create rank instance
             arrange.add(rank);
-        }
+        } // arraylist for rank class 'arrange' is now has all the rank.txt file info.
 
-        Collections.sort(arrange);
+        Collections.sort(arrange); // sort arrange by its turn#
 
         FileWriter fw = new FileWriter("rank.txt");
 
         for (Rank rank : arrange) {
-            fw.write(rank.toString() + "\n");
+            fw.write(rank.toString() + "\n"); // rewrite the file in the format of toString()
         }
         fw.close();
     }
@@ -268,7 +275,8 @@ public class Mission_3_Game {
             if (round.stage == 1) {
                 System.out.println("You've defeated all the enemies! Your total: " + player.getMoney() + " Total turn: " + round.getTurn());
                 System.out.println("Congrats!");
-                Rank rank = new Rank(player, round);
+                Rank rank = new Rank(player, round); // where to create this rank instance is IMPORTANT.
+                // rank should be created after the player and round instance updated their info b/c their info will be inherited.
                 if (rank.wannaSave()) {
                     rank.writeRank();
                 }
