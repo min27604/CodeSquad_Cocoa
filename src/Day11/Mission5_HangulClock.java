@@ -1,13 +1,12 @@
 package Day11;
 
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 
 class Time {
     int hour;
     int minute;
     String period;
-    String[] timeNow  = LocalTime.now().format(DateTimeFormatter.ofPattern("HH mm")).split(" ");
+    String[] timeNow  = String.valueOf(LocalTime.now()).split(":");
 
     public Time() {
         this.hour = Integer.parseInt(timeNow[0]);
@@ -163,7 +162,7 @@ public class Mission5_HangulClock {
         Time time = new Time();
         Checker checker = new Checker(time);
         HangulClock hangulClock = new HangulClock();
-        hangulClock.displayHangulClock(time, checker);
 
+        hangulClock.displayHangulClock(time, checker);
     }
 }
