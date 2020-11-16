@@ -29,7 +29,7 @@ class Time {
 class Checker {
     boolean[] checker = new boolean[36];
 
-    public void timeChecker(int hour, int minute, String period) {
+    public void isMidDayOrNight(int hour, int minute, String period) {
         if (hour == 0 && minute == 0) { // 자정, 정오
             checker[24] = true;
             if (period.equals("AM")) {
@@ -39,7 +39,9 @@ class Checker {
                 checker[30] = true;
             }
         }
+    }
 
+    public void checkHour(int hour) {
         checker[17] = true; // '시'
         switch (hour) {
             case 1 :
@@ -78,7 +80,9 @@ class Checker {
             case 12:
                 checker[14] = checker[16] = true;
         } // 해당 시(number)
+    }
 
+    public void checkMinute(int minute) {
         checker[35] = true; // '분'
         switch (minute % 10) {
             case 1:
@@ -141,7 +145,9 @@ public class Mission5_HangulClock {
         Time time = new Time();
         Checker checker = new Checker();
         time.setHourMinutePeriod();
-        checker.timeChecker(time.hour, time.minute, time.period);
+        checker.isMidDayOrNight(time.hour, time.minute, time.period);
+        checker.checkHour(time.hour);
+        checker.checkMinute(time.minute);
         char[] hangul = {'한', '두', '세', '네', '다', '섯', '여', '섯', '일', '곱', '여', '덟', '아', '홉', '열', '한', '두', '시',
                 '자', '이', '삼', '사', '오', '십', '정', '일', '이', '삼', '사', '육', '오', '오', '칠', '팔', '구', '분'};
 
