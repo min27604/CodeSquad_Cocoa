@@ -52,6 +52,7 @@ class Checker {
                 this.checker[14] = this.checker[15] = true;
                 break;
             case 12:
+            case 0:
                 this.checker[14] = this.checker[16] = true;
         } // 해당 시(number)
     }
