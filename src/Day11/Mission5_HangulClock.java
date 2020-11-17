@@ -6,7 +6,7 @@ class Time {
     int hour;
     int minute;
     String period;
-    String[] timeNow  = String.valueOf(LocalTime.now()).split(":");
+    String[] timeNow = String.valueOf(LocalTime.now()).split(":");
 
     public Time() {
         this.hour = Integer.parseInt(timeNow[0]);
@@ -38,34 +38,34 @@ class Checker {
     public void checkHour(Time time) {
         this.checker[17] = true; // '시'
         switch (time.hour) {
-            case 1 :
+            case 1:
                 this.checker[0] = true;
                 break;
-            case 2 :
+            case 2:
                 this.checker[1] = true;
                 break;
-            case 3 :
+            case 3:
                 this.checker[2] = true;
                 break;
-            case 4 :
+            case 4:
                 this.checker[3] = true;
                 break;
-            case 5 :
+            case 5:
                 this.checker[4] = this.checker[5] = true;
                 break;
-            case 6 :
+            case 6:
                 this.checker[6] = this.checker[7] = true;
                 break;
-            case 7 :
+            case 7:
                 this.checker[8] = this.checker[9] = true;
                 break;
-            case 8 :
+            case 8:
                 this.checker[10] = this.checker[11] = true;
                 break;
-            case 9 :
+            case 9:
                 this.checker[12] = this.checker[13] = true;
                 break;
-            case 10 :
+            case 10:
                 this.checker[14] = true;
                 break;
             case 11:
@@ -77,9 +77,7 @@ class Checker {
     }
 
     public void checkMinute(Time time) {
-        if (time.minute != 0) {
-            this.checker[35] = true; // '분'
-        }
+        this.checker[35] = true; // '분'
         switch (time.minute % 10) {
             case 1:
                 checker[25] = true;
@@ -136,7 +134,9 @@ class Checker {
             return;
         }
         checkHour(time);
-        checkMinute(time);
+        if (time.minute != 0) {
+            checkMinute(time);
+        }
     }
 }
 
@@ -148,7 +148,9 @@ class HangulClock {
 
     public void displayHangulClock(Time time, Checker checker) {
         for (int i = 0; i < 36; i++) {
-            if (i % 6 == 0) { System.out.println(); } // new lines after six letters
+            if (i % 6 == 0) {
+                System.out.println();
+            } // new lines after six letters
             if (checker.checker[i]) { // print in red if the letter's checked according to the time
                 System.out.print(ANSI_RED + hangul[i] + " " + ANSI_RESET);
                 continue;
