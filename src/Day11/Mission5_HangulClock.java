@@ -21,7 +21,7 @@ public class Mission5_HangulClock {
 
                     double second = Double.parseDouble(String.valueOf(LocalTime.now()).split(":")[2]);
                     try {
-                        Thread.sleep(2000);//60000 - (int) (second * 1000));
+                        Thread.sleep(60000 - (int) (second * 1000));
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
