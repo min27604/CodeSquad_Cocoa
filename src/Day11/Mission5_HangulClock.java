@@ -77,7 +77,9 @@ class Checker {
     }
 
     public void checkMinute(Time time) {
-        this.checker[35] = true; // '분'
+        if (time.minute != 0) {
+            this.checker[35] = true; // '분'
+        }
         switch (time.minute % 10) {
             case 1:
                 checker[25] = true;
