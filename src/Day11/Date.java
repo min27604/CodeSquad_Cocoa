@@ -15,17 +15,17 @@ class CalendarToPrint {
         cal = Calendar.getInstance();
         this.todaysDate = cal.get(Calendar.DATE);
         this.year = cal.get(Calendar.YEAR);
-        this.month = cal.get(Calendar.MONTH);
+        this.month = cal.get(Calendar.MONTH) + 1;
         cal.set(Calendar.DATE, 1);
         this.dayToStart = cal.get(Calendar.DAY_OF_WEEK);
         this.lastDay = cal.getActualMaximum(Calendar.DATE);
     }
 
     public CalendarToPrint(int year, int month, int date) {
-        cal.set(year, month, date);
-        this.year = cal.get(Calendar.YEAR);
-        this.month = cal.get(Calendar.MONTH);
-        this.todaysDate = cal.get(Calendar.DATE);
+        cal.set(year, month - 1, date);
+        this.year = year;
+        this.month = month;
+        this.todaysDate = date;
         cal.set(Calendar.DATE, 1);
         this.dayToStart = cal.get(Calendar.DAY_OF_WEEK);
         this.lastDay = cal.getActualMaximum(Calendar.DATE);
@@ -33,23 +33,39 @@ class CalendarToPrint {
 }
 
 class Printer {
+    String[] days = {"S", "M", "T", "W", "TH", "F", "S"};
+
     public Printer(CalendarToPrint today) {
-        System.out.println("   S   M   T   W  TH   F   S");
-        for (int i = today.dayToStart; i > 1; i--) {
-            System.out.printf("%4s", " ");
+        System.out.printf("%13d년 %4d월%n", today.year, today.month);
+        for (String day : days) {
+            System.out.printf("%4s", day);
         }
+        System.out.println();
+
+        int dayCounter = today.dayToStart;
 
         for (int i = 1; i < today.lastDay + 1; i++) {
+
+            if (i == 1) {
+                for (int j = today.dayToStart; j > 1; j--) {
+                    System.out.printf("%4s", " ");
+                }
+            }
+
             if (i == today.todaysDate) {
                 String temp = "\u001B[31m" + today.todaysDate + "\u001B[0m";
                 System.out.printf("%13s", temp);
-                continue;
-            }
-            System.out.printf("%4d", i);
-            if (i % 7 == 0) {
-                System.out.println();
+            } else {
+                System.out.printf("%4d", i);
             }
 
+
+            if (dayCounter % 7 == 0) {
+                System.out.println();
+                dayCounter = 0;
+            }
+
+            dayCounter++;
         }
     }
 }
