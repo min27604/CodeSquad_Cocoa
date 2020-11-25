@@ -26,10 +26,15 @@ public class Panel extends JPanel implements ActionListener {
     char direction = 'R';
     boolean running = false;
     Timer timer;
-    Random rand;
+    Random rand = new Random();
+
+    Label over = new Label();
 
     Panel() {
-        rand = new Random();
+        init();
+    }
+
+    public void init() {
         this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
         this.setBackground(new Color(160, 160, 160));
         this.setFocusable(true);
@@ -72,6 +77,8 @@ public class Panel extends JPanel implements ActionListener {
                 }
                 g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
             }
+        } else {
+            gameOver(g);
         }
     }
 
@@ -133,7 +140,6 @@ public class Panel extends JPanel implements ActionListener {
     }
 
     public void gameOver(Graphics g) {
-
     }
 
     @Override
