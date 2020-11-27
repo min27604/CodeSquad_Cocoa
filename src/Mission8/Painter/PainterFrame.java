@@ -10,7 +10,8 @@ import java.awt.image.BufferedImage;
 public class PainterFrame extends Frame {
 
     private BufferedImage img;
-    private Graphics g;
+    public static Graphics g;
+    // public static Graphics2D g2D;
 
     static String checkboxChecker = "Pen";
 
@@ -25,7 +26,7 @@ public class PainterFrame extends Frame {
     }
 
     public void paint(Graphics g) {
-        g.drawImage(img, 0, 0, this);
+        g.drawImage(img, 0, 0, this); // g2D 로 하면 자꾸 null pointer exception 뜬다 왜죠
     }
 
     private void init() {
@@ -37,6 +38,7 @@ public class PainterFrame extends Frame {
         });
         setLayout(new FlowLayout());
         setSize(800, 600);
+        setBackground(Color.white);
 
         toolButtons();
         mouseAction();
@@ -45,19 +47,23 @@ public class PainterFrame extends Frame {
 
         img = (BufferedImage) createImage(800, 600);
         g = img.getGraphics();
-        repaint();
+        //g2D = (Graphics2D) g;
+        //g2D.setStroke(new BasicStroke(10));
     }
 
     private void toolButtons() {
         CheckboxGroup tools = new CheckboxGroup();
         Checkbox pen = new Checkbox("Pen", tools, true);
         Checkbox line = new Checkbox("Line", tools, false);
+        Checkbox eraser = new Checkbox("Eraser", tools, false);
 
         pen.addItemListener(new Actions());
         line.addItemListener(new Actions());
+        eraser.addItemListener(new Actions());
 
         add(pen);
         add(line);
+        add(eraser);
     }
 
     private void mouseAction() {
@@ -82,21 +88,23 @@ public class PainterFrame extends Frame {
             @Override
             public void mouseDragged(MouseEvent e) {
                 if (checkboxChecker.equals("Pen")) {
+                    g.setColor(Color.black);
                     g.drawLine(x, y, e.getX(), e.getY());
                     x = e.getX();
                     y = e.getY();
                     repaint();
                 }
                 if (checkboxChecker.equals("Line")) {
+                    g.setColor(Color.black);
                     x2 = e.getX();
                     y2 = e.getY();
                 }
-            }
-
-            @Override
-            public void mouseMoved(MouseEvent e) {
-//                x = e.getX();
-//                y = e.getY();
+                if (checkboxChecker.equals("Eraser")) {
+                    g.drawLine(x, y, e.getX(), e.getY());
+                    x = e.getX();
+                    y = e.getY();
+                    repaint();
+                }
             }
         });
     }
